@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    table {
+      width: 700px;
+      margin: auto;
+      border: 1px black solid;
+      border-collapse: collapse;
+    }
+
+    td {
+      border: 1px black solid;
+    }
+
+    h2 {
+      height: 40px;
+    }
+
+    img {
+      width: 400px;
+      height: 40px;
+    }
+
+    .showhead {
+      width: 700px;
+      height: 40px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="showhead" v-if="showFlag">
+    <h2>品牌案例管理</h2>
+    <img src="./loading.gif" alt="">
+  </div>
+  <table>
+    <tr>
+      <td>
+        <input type="text" v-model="newBrand">
+        <button>添加</button>
+      </td>
+      <td><input type="text" placeholder="请输入关键字" v-model="keyWords"></td>
+    </tr>
+  </table>
+  <table v-if="brandsList.length>0">
+    <tr>
+      <td></td>
+      <td>序号</td>
+      <td>名称</td>
+      <td>创建时间</td>
+      <td>操作</td>
+    </tr>
+    <tr v-for="item in searchName" :key="item.id">
+      <td><input type="checkbox"></td>
+      <td>{{item.id}}</td>
+      <td>{{item.name}}</td>
+      <td>{{item.ctime}}</td>
+      <td>
+        <button @click="del(item.id)">删除</button>
+      </td>
+    </tr>
+  </table>
+  <table v-else>
+    <tr>
+      <td>没有数据了</td>
+    </tr>
+  </table>
+</div>
+
+<script src="vue.js"></script>
+<script src="./axios.js"></script>
+<script>
+  let vm = new Vue({
+    el: '#app',
+    data: {
+      newBrand: '',
+      brandsList: '',
+      keyWords: '',
+      showFlag: false
+    },
+    created() {
+
+
+      this.getBrandsList();
+    },
+    methods: {
+      //获取数据库数据
+      getBrandsList() {
+        let pro = axios.get('http://127.0.0.1:3006/api/getprodlist');
+        pro
+            .then((msg) => {
+              this.brandsList = msg.data.message;
+            })
+            .catch(err => {
+              return console.log(err);
+            });
+      }
+    },
+    computed: {
+      searchName() {
+        return this.brandsList.filter((item) => {
+          return item.name.includes(this.keyWords);
+        })
+      }
+    }
+
+
+  })
+
+</script>
+</body>
+</html>
